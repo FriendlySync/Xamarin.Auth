@@ -1,0 +1,49 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+
+variables:
+  MONO_VERSION: 5_16_0
+  XCODE_VERSION: 10.1
+
+jobs:
+
+  - job: build_windows_vs2017_quick_and_dirty
+    displayName: Build on Windows VS2017 Redth's Quick and Dirty
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+      - task: NuGetCommand@2
+        displayName: 'NuGet restore'
+        inputs:
+          restoreSolution: 'source/Xamarin.Auth-Library.sln'
+      - task: MSBuild@1
+        displayName: 'Build solution source/Xamarin.Auth-Library.sln'
+        inputs:
+          solution: 'source/Xamarin.Auth-Library.sln'
+          configuration: Release
+      - task: NuGetCommand@2
+        displayName: 'NuGet Pack Xamarin.Auth'
+        inputs:
+          command: pack
+          packagesToPack: nuget/Xamarin.Auth.nuspec
+          basePath: '.\'
+      - task: NuGetCommand@2
+        displayName: 'NuGet Pack Xamarin.Auth.Extensions'
+        inputs:
+          command: pack
+          packagesToPack: nuget/Xamarin.Auth.Extensions.nuspec
+          basePath: '.\'
+      - task: NuGetCommand@2
+        displayName: 'NuGet Pack Xamarin.Auth.XamarinForms'
+        inputs:
+          command: pack
+          packagesToPack: nuget/Xamarin.Auth.XamarinForms.nuspec
+          basePath: '.\'
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifacts'
+        inputs:
+          ArtifactName: nuget
+
